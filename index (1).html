@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>English Tenses — The Three Questions</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0d0f14; --surface: #13161e; --card: #1a1e28; --border: #2a2f3d;
+    --q1: #3a8bff; --q1-dim: #1a3560;
+    --q2: #00c896; --q2-dim: #0a3328;
+    --q3: #ffb83a; --q3-dim: #3d2c0a;
+    --accent: #ff5c7a; --text: #e8eaf0; --muted: #6b7280;
+    --success: #22c55e; --error: #ef4444;
+  }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'DM Mono', monospace; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+  body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; opacity:.5; }
+  .screen { display:none; position:relative; z-index:1; }
+  .screen.active { display:block; }
+
+  /* LANDING */
+  #screen-landing { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem; text-align:center; }
+  #screen-landing.active { display:flex; }
+  .logo-mark { font-family:'Syne',sans-serif; font-size:clamp(3rem,10vw,7rem); font-weight:800; line-height:1; background:linear-gradient(135deg,var(--q1) 0%,var(--q2) 50%,var(--q3) 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:.5rem; animation:fadeUp .8s ease both; }
+  .logo-sub { font-family:'Syne',sans-serif; font-size:clamp(.9rem,2.5vw,1.2rem); font-weight:600; color:var(--muted); letter-spacing:.15em; text-transform:uppercase; margin-bottom:3rem; animation:fadeUp .8s .1s ease both; }
+  .name-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:2.5rem; width:100%; max-width:420px; animation:fadeUp .8s .2s ease both; }
+  .name-card label { display:block; font-size:.75rem; font-weight:500; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:.75rem; }
+  .name-input { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:600; padding:.875rem 1rem; outline:none; transition:border-color .2s; margin-bottom:1.25rem; }
+  .name-input:focus { border-color:var(--q1); }
+  .name-input::placeholder { color:var(--muted); font-weight:400; }
+  .btn-primary { width:100%; background:var(--q1); color:#fff; font-family:'Syne',sans-serif; font-size:1rem; font-weight:700; letter-spacing:.05em; border:none; border-radius:8px; padding:.875rem; cursor:pointer; transition:background .2s,transform .1s; }
+  .btn-primary:hover { background:#5aa0ff; }
+  .btn-primary:active { transform:scale(.98); }
+  .btn-primary:disabled { background:var(--border); color:var(--muted); cursor:not-allowed; }
+
+  /* EXPLAINER */
+  #screen-explainer { min-height:100vh; padding:3rem 1.5rem; max-width:820px; margin:0 auto; }
+  #screen-explainer.active { display:block; }
+  .ex-header { font-family:'Syne',sans-serif; font-size:clamp(1.6rem,5vw,2.4rem); font-weight:800; margin-bottom:.5rem; animation:fadeUp .6s ease both; }
+  .ex-subtitle { color:var(--muted); font-size:.9rem; margin-bottom:2.5rem; animation:fadeUp .6s .1s ease both; }
+  .q-block { border-radius:12px; padding:1.5rem 1.75rem; margin-bottom:1rem; border-left:4px solid; animation:fadeUp .6s ease both; }
+  .q-block.q1 { background:color-mix(in srgb,var(--q1) 8%,var(--card)); border-color:var(--q1); animation-delay:.15s; }
+  .q-block.q2 { background:color-mix(in srgb,var(--q2) 8%,var(--card)); border-color:var(--q2); animation-delay:.25s; }
+  .q-block.q3 { background:color-mix(in srgb,var(--q3) 8%,var(--card)); border-color:var(--q3); animation-delay:.35s; }
+  .q-num { font-size:.7rem; font-weight:500; letter-spacing:.12em; text-transform:uppercase; margin-bottom:.4rem; }
+  .q1 .q-num { color:var(--q1); } .q2 .q-num { color:var(--q2); } .q3 .q-num { color:var(--q3); }
+  .q-title { font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:700; margin-bottom:.5rem; color:var(--text); }
+  .q-body { font-size:.88rem; color:#a0aec0; line-height:1.7; }
+  .q-body strong { color:var(--text); font-weight:500; }
+  .q-body code { font-family:'DM Mono',monospace; font-size:.82rem; padding:1px 6px; border-radius:4px; }
+  .q1 .q-body code { background:var(--q1-dim); color:var(--q1); }
+  .q2 .q-body code { background:var(--q2-dim); color:var(--q2); }
+  .q3 .q-body code { background:var(--q3-dim); color:var(--q3); }
+  .example-box { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.5rem 1.75rem; margin:1.5rem 0 2rem; animation:fadeUp .6s .45s ease both; }
+  .example-box .ex-label { font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:.75rem; }
+  .example-sentence { font-family:'Syne',sans-serif; font-size:1.1rem; font-weight:600; color:var(--text); margin-bottom:1rem; font-style:italic; }
+  .example-steps { display:flex; flex-direction:column; gap:.4rem; }
+  .ex-step { display:flex; align-items:baseline; gap:.6rem; font-size:.85rem; line-height:1.5; }
+  .ex-step-tag { font-size:.65rem; font-weight:600; padding:2px 7px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
+  .ex-step.s1 .ex-step-tag { background:var(--q1-dim); color:var(--q1); }
+  .ex-step.s2 .ex-step-tag { background:var(--q2-dim); color:var(--q2); }
+  .ex-step.s3 .ex-step-tag { background:var(--q3-dim); color:var(--q3); }
+  .ex-step-text { color:#a0aec0; }
+  .ex-step-text strong { color:var(--text); }
+  .result-line { margin-top:1rem; padding-top:1rem; border-top:1px solid var(--border); font-family:'Syne',sans-serif; font-size:.95rem; font-weight:700; }
+  .result-line span { color:var(--q2); }
+  .btn-start-test { display:block; width:100%; max-width:420px; margin:0 auto; background:linear-gradient(135deg,var(--q1),var(--q2)); color:#fff; font-family:'Syne',sans-serif; font-size:1.05rem; font-weight:700; letter-spacing:.05em; border:none; border-radius:10px; padding:1rem; cursor:pointer; transition:opacity .2s,transform .1s; animation:fadeUp .6s .55s ease both; }
+  .btn-start-test:hover { opacity:.9; }
+  .btn-start-test:active { transform:scale(.98); }
+
+  /* QUIZ */
+  #screen-quiz { padding:2rem 1.5rem 4rem; max-width:720px; margin:0 auto; }
+  #screen-quiz.active { display:block; }
+  .quiz-topbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:2rem; flex-wrap:wrap; gap:.75rem; }
+  .quiz-student { font-size:.8rem; color:var(--muted); }
+  .quiz-student strong { color:var(--text); font-family:'Syne',sans-serif; }
+  .quiz-progress-wrap { flex:1; max-width:260px; }
+  .quiz-progress-label { font-size:.75rem; color:var(--muted); margin-bottom:.3rem; display:flex; justify-content:space-between; }
+  .quiz-progress-bar { height:4px; background:var(--border); border-radius:2px; overflow:hidden; }
+  .quiz-progress-fill { height:100%; background:linear-gradient(90deg,var(--q1),var(--q2)); border-radius:2px; transition:width .4s ease; }
+  .q-card { background:var(--card); border:1px solid var(--border); border-radius:16px; padding:1.75rem; margin-bottom:1.25rem; animation:fadeUp .5s ease both; }
+  .sentence-num { font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:.75rem; }
+  .sentence-display { font-family:'Syne',sans-serif; font-size:clamp(1rem,3vw,1.2rem); font-weight:600; line-height:1.6; color:var(--text); margin-bottom:1.5rem; padding-bottom:1.25rem; border-bottom:1px solid var(--border); }
+  .verb-gap { display:inline-block; border-bottom:2.5px solid var(--accent); min-width:100px; text-align:center; color:var(--accent); font-size:.85em; vertical-align:bottom; margin:0 3px; padding:0 4px; }
+  .step-section { margin-bottom:1.25rem; }
+  .step-label { display:flex; align-items:center; gap:.5rem; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:.6rem; }
+  .step-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+  .step-dot.s1 { background:var(--q1); } .step-dot.s2 { background:var(--q2); } .step-dot.s3 { background:var(--q3); }
+  .q-sub-row { display:grid; grid-template-columns:auto 1fr; gap:5px 10px; align-items:start; margin-bottom:.75rem; }
+  .q-badge { font-size:.65rem; font-weight:600; padding:3px 8px; border-radius:20px; white-space:nowrap; margin-top:1px; }
+  .q-badge.q1 { background:var(--q1-dim); color:var(--q1); }
+  .q-badge.q2 { background:var(--q2-dim); color:var(--q2); }
+  .q-badge.q3 { background:var(--q3-dim); color:var(--q3); }
+  .q-question { font-size:.82rem; color:var(--muted); margin-bottom:.45rem; }
+  .opts-row { display:flex; flex-wrap:wrap; gap:.45rem; }
+  .opt-btn { font-family:'DM Mono',monospace; font-size:.78rem; border:1px solid var(--border); border-radius:20px; padding:4px 13px; cursor:pointer; background:var(--surface); color:var(--text); transition:all .15s; }
+  .opt-btn:hover { border-color:var(--muted); background:var(--card); }
+  .opt-btn.sel { border-color:var(--q1); background:color-mix(in srgb,var(--q1) 15%,var(--surface)); color:var(--q1); }
+  .opt-btn.ok  { border-color:var(--success); background:color-mix(in srgb,var(--success) 12%,var(--surface)); color:var(--success); pointer-events:none; }
+  .opt-btn.bad { border-color:var(--error); background:color-mix(in srgb,var(--error) 12%,var(--surface)); color:var(--error); pointer-events:none; }
+  .opt-btn.reveal { border-color:var(--success); background:color-mix(in srgb,var(--success) 8%,var(--surface)); color:var(--success); pointer-events:none; }
+  .text-input { width:100%; max-width:340px; background:var(--surface); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'DM Mono',monospace; font-size:.88rem; padding:.6rem .875rem; outline:none; transition:border-color .2s; }
+  .text-input:focus { border-color:var(--q1); }
+  .text-input.ok { border-color:var(--success); background:color-mix(in srgb,var(--success) 8%,var(--surface)); color:var(--success); }
+  .text-input.bad { border-color:var(--error); background:color-mix(in srgb,var(--error) 8%,var(--surface)); color:var(--error); }
+  .qfb { font-size:.77rem; margin-top:.4rem; display:none; padding:5px 10px; border-radius:6px; }
+  .qfb.show { display:block; }
+  .qfb.ok { background:color-mix(in srgb,var(--success) 10%,var(--surface)); color:var(--success); }
+  .qfb.bad { background:color-mix(in srgb,var(--error) 10%,var(--surface)); color:var(--error); }
+  .check-btn { width:100%; background:var(--surface); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Syne',sans-serif; font-size:.9rem; font-weight:600; padding:.75rem; cursor:pointer; transition:all .2s; margin-top:.5rem; }
+  .check-btn:hover { border-color:var(--q1); color:var(--q1); }
+  .check-btn:disabled { opacity:.5; cursor:not-allowed; }
+  .result-feedback { border-radius:8px; padding:.875rem 1rem; font-size:.85rem; display:none; margin-top:.75rem; line-height:1.6; }
+  .result-feedback.show { display:block; }
+  .result-feedback.ok { background:color-mix(in srgb,var(--success) 10%,var(--surface)); border:1px solid color-mix(in srgb,var(--success) 30%,transparent); color:#a7f3d0; }
+  .result-feedback.bad { background:color-mix(in srgb,var(--error) 8%,var(--surface)); border:1px solid color-mix(in srgb,var(--error) 25%,transparent); color:#fca5a5; }
+  .result-feedback strong { color:#fff; }
+
+  /* RESULTS */
+  #screen-results { min-height:100vh; padding:3rem 1.5rem; max-width:720px; margin:0 auto; text-align:center; }
+  #screen-results.active { display:block; }
+  .score-ring { width:140px; height:140px; border-radius:50%; background:conic-gradient(var(--q2) var(--pct,0%),var(--border) 0%); display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem; position:relative; }
+  .score-ring::before { content:''; position:absolute; inset:10px; border-radius:50%; background:var(--bg); }
+  .score-num { position:relative; z-index:1; font-family:'Syne',sans-serif; font-size:1.8rem; font-weight:800; color:var(--text); }
+  .results-name { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:700; margin-bottom:.4rem; }
+  .results-sub { color:var(--muted); font-size:.88rem; margin-bottom:2.5rem; }
+  .results-grid { display:grid; gap:.75rem; text-align:left; margin-bottom:2rem; }
+  .result-row { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:.875rem 1rem; display:grid; grid-template-columns:1.5rem 1fr auto; gap:.5rem; align-items:start; font-size:.82rem; }
+  .r-num { color:var(--muted); font-size:.75rem; padding-top:2px; }
+  .r-sentence { color:var(--text); line-height:1.5; }
+  .r-answer { font-family:'Syne',sans-serif; font-weight:700; }
+  .r-answer.ok { color:var(--success); } .r-answer.bad { color:var(--error); }
+  .r-correct { color:var(--q2); font-size:.78rem; }
+  .r-badge { font-size:.65rem; font-weight:600; padding:2px 8px; border-radius:20px; white-space:nowrap; height:fit-content; }
+  .r-badge.ok { background:color-mix(in srgb,var(--success) 15%,transparent); color:var(--success); }
+  .r-badge.bad { background:color-mix(in srgb,var(--error) 15%,transparent); color:var(--error); }
+
+  /* email status */
+  .email-status { font-size:.82rem; padding:.75rem 1rem; border-radius:8px; margin-bottom:1.5rem; display:none; }
+  .email-status.show { display:block; }
+  .email-status.sending { background:color-mix(in srgb,var(--q1) 10%,var(--surface)); border:1px solid color-mix(in srgb,var(--q1) 30%,transparent); color:var(--q1); }
+  .email-status.sent { background:color-mix(in srgb,var(--success) 10%,var(--surface)); border:1px solid color-mix(in srgb,var(--success) 30%,transparent); color:var(--success); }
+  .email-status.failed { background:color-mix(in srgb,var(--error) 10%,var(--surface)); border:1px solid color-mix(in srgb,var(--error) 30%,transparent); color:var(--error); }
+
+  .btn-retry { display:inline-block; background:var(--surface); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'Syne',sans-serif; font-size:.9rem; font-weight:600; padding:.75rem 2rem; cursor:pointer; transition:all .2s; margin-top:.5rem; }
+  .btn-retry:hover { border-color:var(--q1); color:var(--q1); }
+
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  @media(max-width:500px){ .q-sub-row{grid-template-columns:1fr} .q-badge{width:fit-content} }
+</style>
+</head>
+<body>
+
+<!-- SCREEN 1: LANDING -->
+<section id="screen-landing" class="screen active">
+  <div class="logo-mark">3Q</div>
+  <div class="logo-sub">The Three Questions · English Tenses</div>
+  <div class="name-card">
+    <label for="student-name">Your name</label>
+    <input id="student-name" class="name-input" type="text" placeholder="e.g. Anna Ivanova" autocomplete="off">
+    <button class="btn-primary" id="btn-to-explainer" disabled>Start →</button>
+  </div>
+</section>
+
+<!-- SCREEN 2: EXPLAINER -->
+<section id="screen-explainer" class="screen">
+  <div class="ex-header">The Three Questions</div>
+  <div class="ex-subtitle">Для установления правильного времени, мы всегда задаем три вопроса.</div>
+
+  <div class="q-block q1">
+    <div class="q-num">Question 1</div>
+    <div class="q-title">От чего мы считаем? — What is the moment of reference?</div>
+    <div class="q-body">
+      <strong>Present (Now)</strong> — Moment of speech.<br>
+      <strong>Past moment</strong> — a date, specific time, or another past action.<br>
+      <strong>Future moment</strong> — a date, specific time, or another future action.<br><br>
+      The answer tells you which form of <code>have</code> to use if you need Perfect, and whether to use <code>will</code>.
+    </div>
+  </div>
+
+  <div class="q-block q2">
+    <div class="q-num">Question 2</div>
+    <div class="q-title">Длинное или короткое? — Short or Long action?</div>
+    <div class="q-body">
+      <strong>Short → Simple</strong> — action seen as a single complete event.<br>
+      <strong>Long → Continuous</strong> — action is ongoing / in progress.<br><br>
+      If <strong>Continuous</strong>: add <code>to be + V-ing</code> &nbsp;(e.g. <em>is playing</em>, <em>had been studying</em>).
+    </div>
+  </div>
+
+  <div class="q-block q3">
+    <div class="q-num">Question 3</div>
+    <div class="q-title">В момент или ДО момента? — At or Before the moment from Q1?</div>
+    <div class="q-body">
+      <strong>At the moment</strong> — no Perfect needed.<br>
+      <strong>Before the moment → Perfect (have)</strong> — add <code>have</code> in the form from Q1.<br><br>
+      Если ДО — это <strong>perfect tense</strong>: добавляется глагол <code>have</code> в форме из Q1.
+    </div>
+  </div>
+
+  <div class="example-box">
+    <div class="ex-label">Например — Worked example</div>
+    <div class="example-sentence">"Рейчел только что убрала свою комнату."</div>
+    <div class="example-steps">
+      <div class="ex-step s1">
+        <span class="ex-step-tag">Q1</span>
+        <span class="ex-step-text"><strong>Present (Now)</strong> — говорим от настоящего момента.</span>
+      </div>
+      <div class="ex-step s2">
+        <span class="ex-step-tag">Q2</span>
+        <span class="ex-step-text"><strong>Short → Simple</strong> — уборка — одно завершённое действие.</span>
+      </div>
+      <div class="ex-step s3">
+        <span class="ex-step-tag">Q3</span>
+        <span class="ex-step-text"><strong>Before now → Perfect (have)</strong> — уборка завершилась ДО этого момента.</span>
+      </div>
+    </div>
+    <div class="result-line">
+      Название времени: <span>Present Perfect Simple</span> &nbsp;·&nbsp;
+      Формула: <span>has/have + V3</span> &nbsp;·&nbsp;
+      <span>Rachel has just cleaned her room.</span>
+    </div>
+  </div>
+
+  <button class="btn-start-test" id="btn-to-quiz">Понятно — начать тест →</button>
+</section>
+
+<!-- SCREEN 3: QUIZ -->
+<section id="screen-quiz" class="screen">
+  <div class="quiz-topbar">
+    <div class="quiz-student">Student: <strong id="display-name"></strong></div>
+    <div class="quiz-progress-wrap">
+      <div class="quiz-progress-label">
+        <span id="prog-label">0 / 8</span>
+        <span id="prog-score">Score: 0</span>
+      </div>
+      <div class="quiz-progress-bar">
+        <div class="quiz-progress-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+  <div id="cards-container"></div>
+</section>
+
+<!-- SCREEN 4: RESULTS -->
+<section id="screen-results" class="screen">
+  <div class="score-ring" id="score-ring">
+    <div class="score-num" id="score-final">0/8</div>
+  </div>
+  <div class="results-name" id="results-name"></div>
+  <div class="results-sub" id="results-sub"></div>
+  <div class="email-status" id="email-status"></div>
+  <div class="results-grid" id="results-grid"></div>
+  <button class="btn-retry" onclick="location.reload()">Try again</button>
+</section>
+
+<script>
+// ── EmailJS init ──────────────────────────────────────────
+emailjs.init("pJylUgyIFzACqqMn6");
+
+const EMAILJS_SERVICE  = "service_nuce17k";
+const EMAILJS_TEMPLATE = "template_xgd16ps";
+
+// ── data ──────────────────────────────────────────────────
+const items = [
+  { id:0, pre:"By the time Tom arrived, Sarah", verb:"leave", post:"already.",
+    q1:{opts:["Present (now)","Past moment","Future moment"],correct:1,correctLabel:"Past moment"},
+    q2:{correct:0,correctLabel:"Short → Simple"},
+    q3:{correct:1,correctLabel:"Before the moment → Perfect (have)"},
+    tense:"Past Perfect Simple", full:"had already left", formula:"had + V3" },
+  { id:1, pre:"Look! The children", verb:"play", post:"in the garden right now.",
+    q1:{opts:["Present (now)","Past moment","Future moment"],correct:0,correctLabel:"Present (now)"},
+    q2:{correct:1,correctLabel:"Long → Continuous (to be + V-ing)"},
+    q3:{correct:0,correctLabel:"At the moment → no 'have'"},
+    tense:"Present Continuous", full:"are playing", formula:"am/is/are + V-ing" },
+  { id:2, pre:"My grandfather", verb:"fight", post:"in the war in 1944.",
+    q1:{opts:["Present (now)","Past moment","Future moment"],correct:1,correctLabel:"Past moment"},
+    q2:{correct:0,correctLabel:"Short → Simple"},
+    q3:{correct:0,correctLabel:"At the moment → no 'have'"},
+    tense:"Past Simple", full:"fought", formula:"V2" },
+  { id:3, pre:"She", verb:"study", post:"for three hours when her phone rang.",
+    q1:{opts:["Present (now)","Past moment","Future moment"],correct:1,correctLabel:"Past moment"},
+    q2:{correct:1,correctLabel:"Long → Continuous (to be + V-ing)"},
+    q3:{correct:1,correctLabel:"Before the moment → Perfect (have)"},
+    tense:"Past Perfect Continuous", full:"had been studying", formula:"had been + V-ing" },
+  { id:4, pre:"By next June, they", verb:"build", post:"this bridge for two years.",
+    q1:{opts:["Present (now)","Past moment","Future moment"],correct:2,correctLabel:"Future moment"},
+    q2:{correct:1,correctLabel:"Long → Continuous (to be + V-ing)"},
+    q3:{correct:1,correctLabel:"Before the moment → Perfect (have)"},
+    tense:"Future Perfect Continuous", full:"will have been building", formula:"will have been + V-ing" },
+  { id:5, pre:"Jake", verb:"read", post:"this novel twice already.",
+    q1:{opts:["Present (now)","Past moment","Future moment"],correct:0,correctLabel:"Present (now)"},
+    q2:{correct:0,correctLabel:"Short → Simple"},
+    q3:{correct:1,correctLabel:"Before the moment → Perfect (have)"},
+    tense:"Present Perfect Simple", full:"has read", formula:"has/have + V3" },
+  { id:6, pre:"This time tomorrow, I", verb:"fly", post:"over the Atlantic Ocean.",
+    q1:{opts:["Present (now)","Past moment","Future moment"],correct:2,correctLabel:"Future moment"},
+    q2:{correct:1,correctLabel:"Long → Continuous (to be + V-ing)"},
+    q3:{correct:0,correctLabel:"At the moment → no 'have'"},
+    tense:"Future Continuous", full:"will be flying", formula:"will be + V-ing" },
+  { id:7, pre:"The students", verb:"discuss", post:"the results when the professor walked in.",
+    q1:{opts:["Present (now)","Past moment","Future moment"],correct:1,correctLabel:"Past moment"},
+    q2:{correct:1,correctLabel:"Long → Continuous (to be + V-ing)"},
+    q3:{correct:0,correctLabel:"At the moment → no 'have'"},
+    tense:"Past Continuous", full:"were discussing", formula:"was/were + V-ing" }
+];
+
+const Q2_OPTS = ["Short → Simple","Long → Continuous (to be + V-ing)"];
+const Q3_OPTS = ["At the moment → no 'have'","Before the moment → Perfect (have)"];
+
+let studentName = '';
+let score = 0;
+let checked = new Array(8).fill(false);
+let results = [];
+
+// ── navigation ────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+const nameInput = document.getElementById('student-name');
+const btnExplainer = document.getElementById('btn-to-explainer');
+nameInput.addEventListener('input', () => {
+  btnExplainer.disabled = nameInput.value.trim().length < 2;
+});
+btnExplainer.addEventListener('click', () => {
+  studentName = nameInput.value.trim();
+  showScreen('screen-explainer');
+});
+document.getElementById('btn-to-quiz').addEventListener('click', () => {
+  document.getElementById('display-name').textContent = studentName;
+  buildCards();
+  showScreen('screen-quiz');
+});
+
+// ── helpers ───────────────────────────────────────────────
+function norm(s){ return s.trim().toLowerCase().replace(/[^a-z\s']/g,'').replace(/\s+/g,' '); }
+
+function updateProgress() {
+  const done = checked.filter(Boolean).length;
+  document.getElementById('prog-label').textContent = done + ' / 8';
+  document.getElementById('prog-score').textContent  = 'Score: ' + score;
+  document.getElementById('prog-fill').style.width   = (done / 8 * 100) + '%';
+  if (done === 8) setTimeout(showResults, 700);
+}
+
+// ── build quiz cards ──────────────────────────────────────
+function buildCards() {
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '';
+  items.forEach(item => {
+    const card = document.createElement('div');
+    card.className = 'q-card';
+    card.id = 'card-' + item.id;
+    card.innerHTML = `
+      <div class="sentence-num">Sentence ${item.id+1} of 8</div>
+      <div class="sentence-display">
+        ${item.pre}
+        <span class="verb-gap">(${item.verb})</span>
+        ${item.post}
+      </div>
+      <div class="step-section">
+        <div class="step-label"><span class="step-dot s1"></span>Step 1 — The Three Questions</div>
+        <div class="q-sub-row">
+          <span class="q-badge q1">Q1</span>
+          <div>
+            <div class="q-question">What is the moment of reference?</div>
+            <div class="opts-row" id="opts-${item.id}-q1">
+              ${item.q1.opts.map((o,i)=>`<button class="opt-btn" data-item="${item.id}" data-q="q1" data-i="${i}">${o}</button>`).join('')}
+            </div>
+            <div id="qfb-${item.id}-q1" class="qfb"></div>
+          </div>
+        </div>
+        <div class="q-sub-row">
+          <span class="q-badge q2">Q2</span>
+          <div>
+            <div class="q-question">Is the action short or long?</div>
+            <div class="opts-row" id="opts-${item.id}-q2">
+              ${Q2_OPTS.map((o,i)=>`<button class="opt-btn" data-item="${item.id}" data-q="q2" data-i="${i}">${o}</button>`).join('')}
+            </div>
+            <div id="qfb-${item.id}-q2" class="qfb"></div>
+          </div>
+        </div>
+        <div class="q-sub-row">
+          <span class="q-badge q3">Q3</span>
+          <div>
+            <div class="q-question">Does the action happen at or before the moment in Q1?</div>
+            <div class="opts-row" id="opts-${item.id}-q3">
+              ${Q3_OPTS.map((o,i)=>`<button class="opt-btn" data-item="${item.id}" data-q="q3" data-i="${i}">${o}</button>`).join('')}
+            </div>
+            <div id="qfb-${item.id}-q3" class="qfb"></div>
+          </div>
+        </div>
+      </div>
+      <div class="step-section">
+        <div class="step-label"><span class="step-dot s2"></span>Step 2 — Write the full verb form</div>
+        <div style="font-size:.8rem;color:var(--muted);margin-bottom:.4rem">${item.pre} ___ ${item.post}</div>
+        <input class="text-input" id="full-${item.id}" placeholder="e.g. had been studying…">
+        <div id="fullFb-${item.id}" class="qfb"></div>
+      </div>
+      <div class="step-section">
+        <div class="step-label"><span class="step-dot s3"></span>Step 3 — Name the tense</div>
+        <input class="text-input" id="tense-${item.id}" placeholder="e.g. Past Perfect Simple…">
+        <div id="tenseFb-${item.id}" class="qfb"></div>
+      </div>
+      <button class="check-btn" data-item="${item.id}">Check →</button>
+      <div class="result-feedback" id="rfb-${item.id}"></div>
+    `;
+    container.appendChild(card);
+  });
+
+  document.querySelectorAll('.opt-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      if (checked[parseInt(this.dataset.item)]) return;
+      const iid = this.dataset.item, qk = this.dataset.q;
+      document.querySelectorAll(`#opts-${iid}-${qk} .opt-btn`).forEach(b => b.classList.remove('sel'));
+      this.classList.add('sel');
+    });
+  });
+
+  document.querySelectorAll('.check-btn').forEach(btn => {
+    btn.addEventListener('click', function() { checkItem(parseInt(this.dataset.item)); });
+  });
+}
+
+// ── check a sentence ──────────────────────────────────────
+function checkItem(iid) {
+  if (checked[iid]) return;
+  const item = items[iid];
+  let itemScore = 0;
+
+  ['q1','q2','q3'].forEach(qk => {
+    const sel = document.querySelector(`#opts-${iid}-${qk} .opt-btn.sel`);
+    const fb  = document.getElementById(`qfb-${iid}-${qk}`);
+    const correct  = item[qk].correct;
+    const allBtns  = document.querySelectorAll(`#opts-${iid}-${qk} .opt-btn`);
+    if (!sel) {
+      fb.textContent = 'Please choose an answer.';
+      fb.className   = 'qfb show bad';
+      allBtns[correct].classList.add('reveal');
+      return;
+    }
+    const oi = parseInt(sel.dataset.i);
+    allBtns.forEach(b => b.classList.remove('sel'));
+    if (oi === correct) {
+      sel.classList.add('ok');
+      fb.textContent = 'Correct!';
+      fb.className   = 'qfb show ok';
+      itemScore++;
+    } else {
+      sel.classList.add('bad');
+      allBtns[correct].classList.add('reveal');
+      fb.textContent = 'Correct: ' + item[qk].correctLabel;
+      fb.className   = 'qfb show bad';
+    }
+  });
+
+  const fullEl  = document.getElementById(`full-${iid}`);
+  const fullFb  = document.getElementById(`fullFb-${iid}`);
+  const fullOk  = norm(fullEl.value) === norm(item.full);
+  fullEl.className = 'text-input ' + (fullOk ? 'ok' : 'bad');
+  if (fullOk) { fullFb.textContent='Correct!'; fullFb.className='qfb show ok'; itemScore++; }
+  else { fullFb.textContent='Correct: '+item.full; fullFb.className='qfb show bad'; }
+
+  const tenseEl = document.getElementById(`tense-${iid}`);
+  const tenseFb = document.getElementById(`tenseFb-${iid}`);
+  const tenseOk = norm(tenseEl.value) === norm(item.tense);
+  tenseEl.className = 'text-input ' + (tenseOk ? 'ok' : 'bad');
+  if (tenseOk) { tenseFb.textContent='Correct!'; tenseFb.className='qfb show ok'; itemScore++; }
+  else { tenseFb.textContent='Correct: '+item.tense; tenseFb.className='qfb show bad'; }
+
+  const allOk = itemScore === 5;
+  const rfb = document.getElementById(`rfb-${iid}`);
+  if (allOk) {
+    rfb.innerHTML = `<strong>All correct!</strong> ${item.tense} · ${item.formula} · <u>${item.full}</u>`;
+    rfb.className = 'result-feedback show ok';
+    score++;
+  } else {
+    rfb.innerHTML = `Answer: <strong>${item.full}</strong> · Tense: <strong>${item.tense}</strong> · Formula: <em>${item.formula}</em>`;
+    rfb.className = 'result-feedback show bad';
+  }
+
+  document.querySelector(`#card-${iid} .check-btn`).disabled = true;
+  document.querySelector(`#card-${iid} .check-btn`).textContent = allOk ? 'Done ✓' : 'Checked';
+
+  checked[iid] = true;
+  results[iid] = {
+    item,
+    userFull:  fullEl.value,
+    userTense: tenseEl.value,
+    q1sel: document.querySelector(`#opts-${iid}-q1 .opt-btn.ok`)?.textContent
+        || document.querySelector(`#opts-${iid}-q1 .opt-btn.bad`)?.textContent || '—',
+    q2sel: document.querySelector(`#opts-${iid}-q2 .opt-btn.ok`)?.textContent
+        || document.querySelector(`#opts-${iid}-q2 .opt-btn.bad`)?.textContent || '—',
+    q3sel: document.querySelector(`#opts-${iid}-q3 .opt-btn.ok`)?.textContent
+        || document.querySelector(`#opts-${iid}-q3 .opt-btn.bad`)?.textContent || '—',
+    allOk
+  };
+  updateProgress();
+}
+
+// ── results screen + email ────────────────────────────────
+function showResults() {
+  const pct = Math.round(score / 8 * 100);
+  const ring = document.getElementById('score-ring');
+  ring.style.setProperty('--pct', pct + '%');
+  document.getElementById('score-final').textContent = score + '/8';
+  document.getElementById('results-name').textContent = studentName;
+  const msg = pct===100 ? 'Perfect score!' : pct>=75 ? 'Great work!' : pct>=50 ? 'Good effort — keep practising.' : 'Keep going — you\'ll get there!';
+  document.getElementById('results-sub').textContent = msg;
+
+  const grid = document.getElementById('results-grid');
+  grid.innerHTML = '';
+  results.forEach((r, i) => {
+    if (!r) return;
+    const row = document.createElement('div');
+    row.className = 'result-row';
+    row.innerHTML = `
+      <span class="r-num">${i+1}</span>
+      <div class="r-sentence">
+        ${r.item.pre} <span class="r-answer ${r.allOk?'ok':'bad'}">${r.item.full}</span> ${r.item.post}
+        ${!r.allOk ? `<br><span class="r-correct">You wrote: "${r.userFull||'—'}" · Tense: "${r.userTense||'—'}"</span>` : ''}
+      </div>
+      <span class="r-badge ${r.allOk?'ok':'bad'}">${r.allOk?'✓':'✗'}</span>
+    `;
+    grid.appendChild(row);
+  });
+
+  showScreen('screen-results');
+  sendEmail();
+}
+
+// ── build plain-text email body ───────────────────────────
+function buildEmailBody() {
+  const now = new Date().toLocaleString('en-GB', { dateStyle:'long', timeStyle:'short' });
+  let lines = [];
+  lines.push(`Student: ${studentName}`);
+  lines.push(`Date: ${now}`);
+  lines.push(`Score: ${score} / 8`);
+  lines.push('');
+  lines.push('─── DETAILED RESULTS ───');
+  lines.push('');
+
+  results.forEach((r, i) => {
+    if (!r) return;
+    const mark = r.allOk ? '✓' : '✗';
+    lines.push(`${mark} ${i+1}. ${r.item.pre} [${r.item.full}] ${r.item.post}`);
+    lines.push(`   Q1: ${r.q1sel}  (correct: ${r.item.q1.correctLabel})`);
+    lines.push(`   Q2: ${r.q2sel}  (correct: ${r.item.q2.correctLabel})`);
+    lines.push(`   Q3: ${r.q3sel}  (correct: ${r.item.q3.correctLabel})`);
+    lines.push(`   Verb form:  student wrote "${r.userFull||'—'}"  →  correct: "${r.item.full}"`);
+    lines.push(`   Tense name: student wrote "${r.userTense||'—'}"  →  correct: "${r.item.tense}"`);
+    lines.push('');
+  });
+
+  return lines.join('\n');
+}
+
+// ── send via EmailJS ──────────────────────────────────────
+function sendEmail() {
+  const statusEl = document.getElementById('email-status');
+  statusEl.textContent = 'Sending results to teacher…';
+  statusEl.className = 'email-status show sending';
+
+  const templateParams = {
+    student_name:  studentName,
+    score:         score + ' / 8',
+    results_body:  buildEmailBody(),
+    submitted_at:  new Date().toLocaleString('en-GB', { dateStyle:'long', timeStyle:'short' }),
+  };
+
+  emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, templateParams)
+    .then(() => {
+      statusEl.textContent = 'Results sent to your teacher.';
+      statusEl.className = 'email-status show sent';
+    })
+    .catch(err => {
+      console.error('EmailJS error:', err);
+      statusEl.textContent = 'Could not send results automatically. Please screenshot this page.';
+      statusEl.className = 'email-status show failed';
+    });
+}
+</script>
+</body>
+</html>
